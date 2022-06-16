@@ -1,0 +1,77 @@
+
+<div id="friend_list">
+    <h2>
+        Friends
+    </h2>
+
+
+<table id="friend_list_table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Online
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {% if friends %}
+            {% for friend in friends %}
+                <tr>
+                    <td>
+                        <h5>
+                            <a href="/chat/chat/{{ friend.user_id }}"> {{ friend.name }} </a>
+                        </h5>
+                    </td>
+                    <td>
+                        {% if friend.online %}
+                            <img src="{% static 'img/green-dot.png' %}" alt="x" width="18px" height="18px">
+                        {% else %}
+                            <img src="{% static 'img/red-dot.png' %}" alt="x" width="18px" height="18px">
+                        {% endif %}
+
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+
+    </tbody>
+</table>
+
+
+</div>
+
+<div id="find_friends">
+    <h3 id="find_friends_header">
+        Find friends
+    </h3>
+    <form id="find_friends_form" method="get" action="">
+        {% csrf_token %}
+        {{ find_friends_form.as_p }}
+        <button type="submit" id="find_friends_btn">
+            Search
+        </button>
+    </form>
+    {% if search_results %}
+    <table id="search_results_table">
+        <tbody>
+
+        {% for result in search_results %}
+            <tr>
+                <td>
+                    {{ result.username }}
+                </td>
+                <td>
+                    <button name="add_user" value="{{ result.id }}" type="submit">
+                        Add friend
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>

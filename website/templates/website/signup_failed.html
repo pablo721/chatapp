@@ -1,0 +1,26 @@
+{% extends 'website/base.html' %}
+
+{% block content %}
+    <div id="signup_failed_form">
+        <button id="back_to_signup_button" onclick="location.href='{% url 'website:signup' %}'">
+            Back
+        </button>
+    </div>
+
+    <div id="signup_errors">
+        <p>
+            Signup failed due to following errors:
+        </p>
+            {% for key, error in errors.items %}
+        <p>
+            {{ key }} : {{ error }}
+        </p>
+            {% endfor %}
+        <p>
+            Please try again.
+        </p>
+
+    </div>
+{% endblock %}
+
+

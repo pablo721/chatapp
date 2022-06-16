@@ -1,0 +1,31 @@
+{% extends 'website/base.html' %}
+
+{% block content %}
+<div id="chat_div">
+    <div id="friends_div">
+        {% include 'chat/_friend_list.html' %}
+    </div>
+
+    <div id="chat_window">
+        {% include 'chat/_chat_top.html' %}
+        {% include 'chat/_chat_window.html' %}
+        {% include 'chat/_message_form.html' %}
+    </div>
+
+    <div id="rooms_div">
+        {% include 'chat/_rooms.html' %}
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block js %}
+    <script type="text/javascript">
+        var recipient_id = '{{ friend.id }}';
+    </script>
+    <script src="{% static 'js/chat.js' %}"></script>
+
+{% endblock %}
+
+

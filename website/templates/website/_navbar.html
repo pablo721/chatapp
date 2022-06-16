@@ -1,0 +1,16 @@
+
+
+<div id="navbar" class="w3-top w3-bar w3-black w3-card">
+    <a href="{% url 'chat:chat' %}" class="w3-bar-item w3-button w3-padding-large"> Chat </a>
+
+    {% if user.is_authenticated %}
+        <input type="text" id="search_box" placeholder="Find users/rooms">
+        <a href="{% url 'website:logout' %}" class="w3-bar-item w3-button w3-padding-large"> Log Out </a>
+    {% else %}
+        <a href="{% url 'website:login' %}" class="w3-bar-item w3-button w3-padding-large"> Log In </a>
+        <a href="{% url 'website:signup' %}" class="w3-bar-item w3-button w3-padding-large"> Sign Up </a>
+    {% endif %}
+</div>
+
+
+
