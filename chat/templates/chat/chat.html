@@ -22,12 +22,19 @@
 
 
 {% block js %}
-    {% if friend %}
-        <script type="text/javascript">
+
+    <script type="text/javascript">
+      /*  var recipient_id = null;
+        var room_id = null;
+        {% if friend %}
             var recipient_id = '{{ friend.id }}';
-        </script>
-        <script src="{% static 'js/chat.js' %}"></script>
-    {% endif %}
+        {$ elif room %}
+            var room_id = '{{ room.id }}';
+        {% endif %}
+        */
+    </script>
+    <script src="{% static 'js/chat.js' %}"></script>
+
 
 {% endblock %}
 

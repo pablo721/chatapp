@@ -14,3 +14,9 @@ class RoomSerializer(serializers.ModelSerializer):
 		model = Room
 		fields = ['room_name', 'creator', 'users', 'private', 'creation_date']
 
+
+class RoomMsgSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Message
+		fields = ['sender_id', 'room_id', 'content', 'timestamp', 'delivered', 'read', 'destruct_timer']
+

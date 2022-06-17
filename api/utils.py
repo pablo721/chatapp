@@ -1,11 +1,11 @@
-from chat.models import Message
+from chat.models import Message, Profile
 from django.contrib.auth.models import User
 import datetime
 
 
 def delete_messages(user_id):
 	tz_info = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
-	user = User.objects.get(id=user_id).user_profile
+	user = Profile.objects.get(id=user_id)
 	sent_msgs = Message.objects.filter(sender=user).values()
 	recvd_msgs = Message.objects.filter(recipient=user).values()
 

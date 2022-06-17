@@ -4,8 +4,8 @@
         <h3 id="chat_header">
             {% if room %}
                 Room {{ room.room_name }}
-            {% else %}
-                Chat with {{ friend.user.username }}
+            {% elif friend %}
+                Chat with {{ friend.user }}
             {% endif %}
         </h3>
         <form id="clear_chat_form" method="post" action="#">

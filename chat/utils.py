@@ -1,7 +1,7 @@
 from online_users.models import OnlineUserActivity
 import datetime
 from django.contrib.auth.models import User
-from .models import Message, Profile, Room, Friendship
+from .models import Message, Profile, Room
 
 
 def see_users():

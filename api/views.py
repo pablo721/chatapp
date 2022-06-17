@@ -20,8 +20,25 @@ class UsersView(viewsets.ModelViewSet):
 
 
 class RoomsView(viewsets.ModelViewSet):
+	queryset = Room.objects.all()
 	serializer_class = RoomSerializer
 	filter_backends = [rest_filters.DjangoFilterBackend]
+
+	def get_queryset(self):
+		rooms = Room.objects.filter(private=False)
+
+
+class RoomMsgsView(viewsets.ModelViewSet):
+	queryset = Message.objects.all()
+	serializer_class = MessageSerializer
+	filter_backends = [rest_filters.DjangoFilterBackend]
+
+	def get_queryset(self):
+		print(str(self.request))
+		#room = Room.objects.get(id=room_id)
+
+
+
 
 
 class MessagesView(viewsets.ModelViewSet):
@@ -32,7 +49,7 @@ class MessagesView(viewsets.ModelViewSet):
 
 	def get_queryset(self):
 		print(self.request.GET)
-		user = self.request.user.user_profile
+		user = Profile.objects.get(user=self.request.user)
 		delete_messages(user.id)
 		friend = Profile.objects.get(id=self.request.GET['friend_id'])
 		sent_msgs = Message.objects.filter(sender=user, recipient=friend).values()

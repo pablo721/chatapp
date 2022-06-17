@@ -1,10 +1,10 @@
 <div id="msg_div">
     <form id="msg_form" method="post" action="">
         {% csrf_token %}
-        <input id="recipient_id" type="hidden" name="recipient_id" value="{{ recipient.id }}">
+        <input id="friend_id" type="hidden" name="friend_id" value="{{ friend.id }}">
         <button id="clear_msg" type="reset"> Clear </button>
         <input id="msg_text" type="text" name="msg_text">
         <button id="msg_button" type="submit" form="msg_form"> Send </button>
-        <input id="destr_timer" type="hidden" value="destruct_select.value" name="destr_timer">
+        <input id="destr_timer" type="hidden" value="{{ destruct_select.value }}" name="destr_timer">
     </form>
 </div>

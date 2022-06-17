@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.generic import TemplateView
-from .models import Message, Room, Profile, Friendship
+from .models import Message, Room, Profile
 from .forms import CreateRoomForm, FindUsersForm
 from .utils import see_users, clear_history
 
@@ -18,42 +18,27 @@ class ChatView(TemplateView):
     create_room_form = CreateRoomForm
 
     def post(self, request, *args, **kwargs):
-        print(f'posting {request.POST}')
-        user = request.user.user_profile
+        user = Profile.objects.get(user=request.user)
         if 'add_friend' in str(request.POST):
-            friend = User.objects.get(id=request.POST['add_friend']).user_profile
-            print('frinndsds')
-            if not Friendship.objects.filter(friend=friend.id).filter(user=user.id).exists():
-                now = datetime.datetime.now(tz=datetime.timezone.utc)
-                f = Friendship.objects.create(user=user.id, friend=friend.id, since=now)
-                f.save()
-                print(f'created friendship {user} {friend} \n {f}')
-
-            return HttpResponseRedirect(reverse('chat:chat_with_friend', args=(friend.id,)))
+            friend = Profile.objects.get(user=User.objects.get(id=request.POST['add_friend']))
+            if friend not in user.friends.all():
+                user.friends.add(friend)
+                user.save()
+                return HttpResponseRedirect(reverse('chat:chat_with_friend', args=(friend.id,)))
         return HttpResponseRedirect(reverse('chat:chat'))
 
     def get_context_data(self, *args, **kwargs):
-        print(f'getin context')
         user = self.request.user
         profile = user.user_profile
-        print(user)
         users_online = see_users()
-        print(f'online: {users_online}')
-        friendship = Friendship.objects.filter(user=profile)
-        friends = [(f.friend.user.username, f.id, f.friend.user in users_online) for f in friendship]
-
-        print(friends)
+        friends = [(f.user.username, f.id, f.user in users_online) for f in profile.friends.all()]
         friend = None
         room = None
-
         owned_rooms = Room.objects.filter(creator=profile)
         priv_rooms = profile.rooms.all()
         pub_rooms = Room.objects.filter(private=False)
         rooms = owned_rooms.union(priv_rooms, pub_rooms)
-        print(rooms)
-        print(len(rooms))
-        print(len(priv_rooms) + len(pub_rooms))
-        print(f'pub: {pub_rooms} \n priv: {priv_rooms} \n yours:{owned_rooms}')
+
 
 
         search_results = []
@@ -72,73 +57,73 @@ class ChatView(TemplateView):
 
 class ChatWithFriendView(ChatView):
 
-
     def post(self, request, *args, **kwargs):
+        print(request.POST)
+        print(kwargs)
+        user = Profile.objects.get(user=request.user)
+        friend = Profile.objects.get(id=kwargs['friend_id'])
         if 'clear_history' in str(request.POST):
-            user_id = request.user.user_profile.id
-            friend_id = self.request.POST['clear_history']
-            clear_history(user_id, friend_id)
-            friendship_id = Friendship.objects.filter(user=user_id).filter(friend=friend_id).first().id
-            return HttpResponseRedirect(reverse('chat:chat_with_friend', args=(friendship_id,)))
+            clear_history(user.id, friend.id)
+
+        elif 'msg_text' in str(request.POST):
+            print(f'msg \n {request.POST}')
+            date = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1)))
+            Message.objects.create(sender=user, recipient=friend, content=request.POST['msg_text'],
+                                   timestamp=date)
+            #destruct_timer=request.POST['destr_timer']
+
+        return HttpResponseRedirect(reverse('chat:chat_with_friend', args=(friend.id,)))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        if Friendship.objects.filter(id=kwargs['friend_id']).exists():
-            context['friend'] = Friendship.objects.get(id=kwargs['friend_id']).friend
+        context['friend'] = Profile.objects.get(id=kwargs['friend_id'])
         return context
 
 
 class RoomView(ChatView):
+    model = Room
     create_room_form = CreateRoomForm
 
+
     def get_context_data(self, room_id, *args, **kwargs):
-        print('roomview')
         context = super().get_context_data(**kwargs)
-        print(context)
         room = Room.objects.get(id=room_id)
         context['room'] = room
-        context['messages'] = room.message_room.all()
-        print(f'context: {context}')
+        context['messages'] = Message.objects.filter(room=room)
         return context
 
     def post(self, request, *args, **kwargs):
-        print(f'room_postin')
-        print(request.POST)
-        user = request.user
-
+        context = self.get_context_data(**kwargs)
         if 'join_room_btn' in str(request.POST):
-            print('join_room')
             room = Room.objects.get(id=request.POST['join_room_btn'])
-            profile = user.user_profile
+            profile = Profile.objects.get(user=request.user)
             profile.rooms.add(room)
             profile.save()
-            print(f' profile rooms: {profile.rooms.all()}')
-            return HttpResponseRedirect(reverse('chat:room', args=(room.id, )))
+
+        return HttpResponseRedirect(reverse('chat:room', args=(context['room'].id, )))
 
 
 
 def delete_friend(request):
+    user = Profile.objects.get(user=request.user)
     if request.method == "POST" and 'del_friend_btn' in str(request.POST):
-        print(request.POST)
-        if Friendship.objects.filter(id=request.POST['del_friend_btn']).exists():
-            Friendship.objects.get(id=request.POST['del_friend_btn']).delete()
-            print(f'deleted friends;[')
+        friend = Profile.objects.get(id=request.POST['del_friend_btn'])
+        if friend in user.friends.all():
+            user.friends.remove(friend)
+            user.save()
         return HttpResponseRedirect(reverse('chat:chat'))
 
 
 def add_friend(request):
     if request.method == "POST" and 'add_friend' in str(request.POST):
-        now = datetime.datetime.now(datetime.timezone.utc)
-        user_prof = request.user.user_profile
-        friend = User.objects.get(id=request.POST['add_friend'])
-        friend_prof = friend.user_profile
-        if not Friendship.objects.filter(user=user_prof).filter(friend=friend_prof).exists():
-            Friendship.objects.create(user=user_prof, friend=friend_prof, since=now)
+        user = Profile.objects.get(user=request.user)
+        friend = Profile.objects.get(user=User.objects.get(id=request.POST['add_friend']))
+        if friend not in user.friends.all():
+            user.friends.add(friend)
         return HttpResponseRedirect(reverse('chat:chat'))
 
 
 def create_room(request):
-    print(f'cew_crt {request.POST}')
     if request.method == "POST":
         room_form = CreateRoomForm(request.POST)
         if room_form.is_valid():
@@ -146,7 +131,6 @@ def create_room(request):
             form_data['creator'] = request.user.user_profile
             form_data['creation_date'] = datetime.datetime.now(datetime.timezone.utc)
             r = Room.objects.create(**form_data)
-            print(f'created room: {r}')
         else:
             print(f'errors: {room_form.errors}')
 
@@ -155,21 +139,23 @@ def create_room(request):
 
 
 def send(request):
-    sender = request.user.user_profile
-
+    sender = Profile.objects.get(user=request.user)
     message = request.POST['msg_text']
     destr_timer = request.POST['destr_timer']
     date = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1)))
-    if 'recipient_id' in str(request.POST):
-        recipient = User.objects.get(id=request.POST['recipient_id']).user_profile
+    if 'friend_id' in str(request.POST):
+        recipient = Profile.objects.get(id=request.POST['recipient_id'])
         Message.objects.create(sender=sender, recipient=recipient, content=message, timestamp=date,
                                destruct_timer=destr_timer)
+        return HttpResponseRedirect(reverse('chat:chat_with_friend', args=(recipient.id,)))
     elif 'room_id' in str(request.POST):
         room = Room.objects.get(id=request.POST['room_id'])
         Message.objects.create(sender=sender, recipient=sender, content=message, timestamp=date, to_room=True,
                                destruct_timer=destr_timer, room=room)
+        return HttpResponseRedirect(reverse('chat:room', args=(room.id,)))
 
-    return HttpResponse('message sent')
+
+
 
 
 
