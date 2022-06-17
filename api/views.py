@@ -38,20 +38,16 @@ class RoomMsgsView(viewsets.ModelViewSet):
 		#room = Room.objects.get(id=room_id)
 
 
-
-
-
 class MessagesView(viewsets.ModelViewSet):
-
 	queryset = Message.objects.all()
 	serializer_class = MessageSerializer
 	filter_backends = [rest_filters.DjangoFilterBackend]
 
 	def get_queryset(self):
-		print(self.request.GET)
+		print(f'kwaegs {self.request.GET}')
 		user = Profile.objects.get(user=self.request.user)
-		delete_messages(user.id)
-		friend = Profile.objects.get(id=self.request.GET['friend_id'])
+		#delete_messages(user.id)
+		friend = Profile.objects.get(user=User.objects.get(id=self.request.GET['friend_id']))
 		sent_msgs = Message.objects.filter(sender=user, recipient=friend).values()
 		received_msgs = Message.objects.filter(sender=friend, recipient=user).values()
 		msgs = sent_msgs.union(received_msgs).order_by('timestamp')
@@ -63,6 +59,7 @@ class MessagesView(viewsets.ModelViewSet):
 				now = datetime.datetime.now(tz=tz_info)
 				delta = (now - msg_date).total_seconds()
 				msg['destruct_timer'] = msg['destruct_timer'] - delta
+		print(f'queryset {msgs}')
 		return msgs
 
 

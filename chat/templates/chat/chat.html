@@ -24,14 +24,14 @@
 {% block js %}
 
     <script type="text/javascript">
-      /*  var recipient_id = null;
-        var room_id = null;
+
         {% if friend %}
-            var recipient_id = '{{ friend.id }}';
-        {$ elif room %}
-            var room_id = '{{ room.id }}';
+            var friend_id = '{{ friend.id }}';
+            console.log(friend_id);
+        {% elif room %}
+            var room_id = {{ room.id }};
         {% endif %}
-        */
+
     </script>
     <script src="{% static 'js/chat.js' %}"></script>
 

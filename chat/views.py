@@ -55,24 +55,33 @@ class ChatView(TemplateView):
                 'search_results': search_results}
 
 
+def send_to_room(request):
+    if 'room_id' in str(request.POST):
+        room = Room.objects.get(id=request.POST['room_id'])
+        Message.objects.create(sender=sender, recipient=sender, content=message, timestamp=date, to_room=True,
+                               destruct_timer=destr_timer, room=room)
+        return HttpResponseRedirect(reverse('chat:room', args=(room.id,)))
+
+
+def send(request):
+    user = Profile.objects.get(user=request.user)
+    print(request.POST)
+    if 'friend_id' in str(request.POST) and 'msg_text' in str(request.POST):
+        friend = Profile.objects.get(id=request.POST['friend_id'])
+        date = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1)))
+        Message.objects.create(sender=user, recipient=friend, content=request.POST['msg_text'],
+                               timestamp=date)
+        # destruct_timer=request.POST['destr_timer']
+        return HttpResponseRedirect(reverse('chat:chat_with_friend', args=(friend.id,)))
+
+
 class ChatWithFriendView(ChatView):
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
-        print(kwargs)
         user = Profile.objects.get(user=request.user)
         friend = Profile.objects.get(id=kwargs['friend_id'])
         if 'clear_history' in str(request.POST):
             clear_history(user.id, friend.id)
-
-        elif 'msg_text' in str(request.POST):
-            print(f'msg \n {request.POST}')
-            date = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1)))
-            Message.objects.create(sender=user, recipient=friend, content=request.POST['msg_text'],
-                                   timestamp=date)
-            #destruct_timer=request.POST['destr_timer']
-
-        return HttpResponseRedirect(reverse('chat:chat_with_friend', args=(friend.id,)))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -138,21 +147,7 @@ def create_room(request):
 
 
 
-def send(request):
-    sender = Profile.objects.get(user=request.user)
-    message = request.POST['msg_text']
-    destr_timer = request.POST['destr_timer']
-    date = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1)))
-    if 'friend_id' in str(request.POST):
-        recipient = Profile.objects.get(id=request.POST['recipient_id'])
-        Message.objects.create(sender=sender, recipient=recipient, content=message, timestamp=date,
-                               destruct_timer=destr_timer)
-        return HttpResponseRedirect(reverse('chat:chat_with_friend', args=(recipient.id,)))
-    elif 'room_id' in str(request.POST):
-        room = Room.objects.get(id=request.POST['room_id'])
-        Message.objects.create(sender=sender, recipient=sender, content=message, timestamp=date, to_room=True,
-                               destruct_timer=destr_timer, room=room)
-        return HttpResponseRedirect(reverse('chat:room', args=(room.id,)))
+
 
 
 
