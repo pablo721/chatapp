@@ -13,7 +13,8 @@
     </div>
 
     <div id="rooms_div">
-        {% include 'chat/_rooms.html' %}
+        {% include 'chat/_new_room_form.html' %}
+        {% include 'chat/_room_list.html' %}
     </div>
 
 </div>
@@ -21,10 +22,12 @@
 
 
 {% block js %}
-    <script type="text/javascript">
-        var recipient_id = '{{ friend.id }}';
-    </script>
-    <script src="{% static 'js/chat.js' %}"></script>
+    {% if friend %}
+        <script type="text/javascript">
+            var recipient_id = '{{ friend.id }}';
+        </script>
+        <script src="{% static 'js/chat.js' %}"></script>
+    {% endif %}
 
 {% endblock %}
 

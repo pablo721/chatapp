@@ -1,0 +1,43 @@
+
+
+    <div id="rooms_table_div">
+        <table id="rooms_table">
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Join/quit
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                <tr>
+                    <td>
+                        <a href="/chat/room/{{ room.id }}"> {{ room.room_name }}  </a>
+                    </td>
+                    <td>
+                        <form id="join_room_form_{{ room.id }}" action="/chat/room/{{ room.id }}" method="post">
+                            {% csrf_token %}
+                            <button name="join_room_btn" type="submit" value="{{ room.id }}">
+                                Join
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        {% if room.private %}
+                            Private
+                        {% else %}
+                            Public
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>

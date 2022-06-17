@@ -18,25 +18,34 @@
     </thead>
     <tbody>
 
-        {% if friends %}
+
             {% for friend in friends %}
                 <tr>
                     <td>
                         <h5>
-                            <a href="/chat/chat/{{ friend.user_id }}"> {{ friend.name }} </a>
+                            <a href="/chat/chat/{{ friend.1 }}"> {{ friend.0 }} </a>
                         </h5>
                     </td>
                     <td>
-                        {% if friend.online %}
+                        {% if friend.2 %}
                             <img src="{% static 'img/green-dot.png' %}" alt="x" width="18px" height="18px">
                         {% else %}
                             <img src="{% static 'img/red-dot.png' %}" alt="x" width="18px" height="18px">
                         {% endif %}
 
                     </td>
+                    <td>
+                        <form id="del_friend_form_{{ friend.1 }}" method="post" action="/chat/delete_friend">
+                            {% csrf_token %}
+                            <button name="del_friend_btn" value="{{ friend.1 }}" type="submit">
+                                X
+                            </button>
+
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
-        {% endif %}
+
 
     </tbody>
 </table>
@@ -58,19 +67,25 @@
     {% if search_results %}
     <table id="search_results_table">
         <tbody>
+            {% for result in search_results %}
 
-        {% for result in search_results %}
-            <tr>
-                <td>
-                    {{ result.username }}
-                </td>
-                <td>
-                    <button name="add_user" value="{{ result.id }}" type="submit">
-                        Add friend
-                    </button>
-                </td>
-            </tr>
-        {% endfor %}
+                <tr>
+                    <td>
+                        {{ result.username }}
+                    </td>
+                    <td>
+                        <form id="add_friend_form_{{ result.id }}" action="{% url 'chat:add_friend' %}" method="post">
+                            {% csrf_token %}
+                            <button name="add_friend" value="{{ result.id }}" type="submit">
+                                Add friend
+                            </button>
+
+                        </form>
+                    </td>
+                </tr>
+
+            {% endfor %}
+
         </tbody>
     </table>
     {% endif %}

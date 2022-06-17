@@ -2,6 +2,8 @@
 var chatarea = document.getElementById('chat_textarea');
 
 
+
+
 function addFriend(friend_id){
     $.ajax({
     type: 'POST',
@@ -30,7 +32,6 @@ function getMessages(){
             console.log(response.length);
             console.log(typeof(response));
 
-
             for (let key in response){
                  let msg = '\n' + response[key].timestamp.replace('T', ' ').slice(0, 16) + '  ' + response[key].sender_id + ':   ' + response[key].content;
 
@@ -58,6 +59,7 @@ $(document).on('submit', '#msg_form', function(e){
     data: {
         recipient_id: recipient_id,
         msg_text: $('#msg_text').val(),
+        destr_timer: $('#destruct_select').val(),
         csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
     },
     success: function(data){

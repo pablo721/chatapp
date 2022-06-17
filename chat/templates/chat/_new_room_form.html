@@ -1,0 +1,9 @@
+
+    <form id="create_room_form" method="post" action="{% url 'chat:create_room' %}">
+        {% csrf_token %}
+            {{ create_room_form.as_p }}
+            <button id="create_room_btn">
+                Create!
+            </button>
+
+    </form>

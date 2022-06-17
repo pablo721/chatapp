@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from chat.models import FriendList
+from chat.models import Profile
 
 
 class IndexView(TemplateView):
@@ -48,10 +48,11 @@ class SignupView(TemplateView):
         if signup_form.is_valid():
             form_data = signup_form.cleaned_data
             user = User.objects.create_user(username=form_data['username'], password=form_data['password1'])
-            FriendList.objects.create(user=user)
+            p = Profile.objects.create(user=user)
+            print(f'user {user}, p: {p}')
             if user is not None:
                 login(request, user)
-                return redirect('website:index')
+                return redirect('chat:chat')
         else:
             print(f'Errors {signup_form.errors}')
             return render(request, 'website/signup_failed.html', {'errors': signup_form.errors})

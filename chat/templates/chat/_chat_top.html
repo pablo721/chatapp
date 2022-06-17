@@ -1,11 +1,19 @@
 
  <div id="chat_top_div">
+
         <h3 id="chat_header">
-            Chat with {{ friend.username }}
+            {% if room %}
+                Room {{ room.room_name }}
+            {% else %}
+                Chat with {{ friend.user.username }}
+            {% endif %}
         </h3>
-        <button id="clear_chat_history" type="submit" name="clear_chat" value="{{ recipient }}">
-            Clear history
-        </button>
+        <form id="clear_chat_form" method="post" action="#">
+            {% csrf_token %}
+            <button id="clear_chat_history" type="submit" name="clear_history" value="{{ friend.id }}">
+                Clear history
+            </button>
+        </form>
 
         <div id="destruct_div">
             <h4 id="destruct_text">
@@ -13,28 +21,28 @@
             </h4>
 
             <select id="destruct_select">
-                <option id="des_option_off" name="des_option_off">
+                <option id="des_option_off" name="des_option_off" value="0">
                     Off
                 </option>
-                <option id="des_option_5s" name="des_option_5s">
+                <option id="des_option_5s" name="des_option_5s" value="5">
                     5s
                 </option>
-                <option id="des_option_1m" name="des_option_1m">
+                <option id="des_option_1m" name="des_option_1m" value="60">
                     1m
                 </option>
-                <option id="des_option_5m" name="des_option_5m">
+                <option id="des_option_5m" name="des_option_5m" value="300">
                     5m
                 </option>
-                <option id="des_option_30m" name="des_option_30m">
+                <option id="des_option_30m" name="des_option_30m" value="1800">
                     30m
                 </option>
-                <option id="des_option_1h" name="des_option_1h">
+                <option id="des_option_1h" name="des_option_1h" value="3600">
                     1h
                 </option>
-                <option id="des_option_2h" name="des_option_2h">
+                <option id="des_option_2h" name="des_option_2h" value="7200">
                     2h
                 </option>
-                <option id="des_option_24h" name="des_option_24h">
+                <option id="des_option_24h" name="des_option_24h" value="86400">
                     24h
                 </option>
             </select>
